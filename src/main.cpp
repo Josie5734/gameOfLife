@@ -1,16 +1,18 @@
 #include "raylib.h"
-#include <functional>
-#include <vector>
-
-#include "buttons.h"
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+// #include <functional>
+// #include <vector>
 
 // grid, cell size and ui values
 const int GRID_WIDTH{50}; // number of cells
 const int GRID_HEIGHT{50};
 const int CELL_SIZE{15}; // size of cells in pixels
 
-const int PADDING{CELL_SIZE};                                                                   // padding to draw around everything
-const Rectangle gridRectangle{PADDING, PADDING, GRID_WIDTH *CELL_SIZE, GRID_HEIGHT *CELL_SIZE}; // store the size and position of the grid in a rectangle
+const int PADDING{CELL_SIZE};                                                                    // padding to draw around everything
+const Rectangle GRID_RECTANGLE{PADDING, PADDING, GRID_WIDTH *CELL_SIZE, GRID_HEIGHT *CELL_SIZE}; // store the size and position of the grid in a rectangle
+const int UI_START_X{PADDING};                                                                   // the start of the ui in x,y
+const int UI_START_Y{static_cast<int>(PADDING * 2 + GRID_RECTANGLE.height)};
 
 // non const values
 bool grid[GRID_WIDTH][GRID_HEIGHT]{{false}};   // the cell grid
@@ -20,16 +22,6 @@ float deltaTime{0.0f};                         // delta time for time between ea
 float timer{0.0f};                             // timer for updating
 const float UPDATE_INTERVAL{1.0f};             // interval to update at (in seconds)
 bool running{false};                           // is the sim running
-
-std::vector<Button> buttonsList{
-    Button(
-        CELL_SIZE * 1,
-        (PADDING + gridRectangle.height) + PADDING,
-        100,
-        40,
-        []() { return running ? "Stop" : "Start"; }, // flip text based on running
-        []() { running = !running; }),
-};
 
 // draw the grid
 void drawGameGrid() {
@@ -42,6 +34,7 @@ void drawGameGrid() {
             DrawRectangleLines(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GRAY);
         }
     }
+    DrawRectangleLinesEx(GRID_RECTANGLE, 2, BLACK); // draw outline of whole grid so edges stand out
 }
 
 // make cell alive/unalive (used only for mouse clicks, not during cycle calculation)
@@ -74,6 +67,11 @@ void swapBuffer() {
     }
 }
 
+// toggle the running state
+void toggleRunning() {
+    running = !running;
+}
+
 // cycle the game, update the grid
 void cycle() {
     for (int y = 0; y < GRID_HEIGHT; y++) { // for each cell
@@ -92,16 +90,14 @@ void cycle() {
 }
 
 int main() {
-    // height of buttons that affect window height
-    int buttonHeights{0};
-    buttonHeights += buttonsList[PLAY_PAUSE].h; // add height of play/pause button into window
-
     // screen size
-    const int screenWidth{static_cast<int>((PADDING * 2) + gridRectangle.width)};                               // padding either side + grid width
-    const int screenHeight{static_cast<int>((PADDING * 2) + gridRectangle.height + (PADDING + buttonHeights))}; // same as width + height of buttons + pad between grid and button
+    const int screenWidth{static_cast<int>((PADDING * 2) + GRID_RECTANGLE.width)};                     // padding either side + grid width
+    const int screenHeight{static_cast<int>((PADDING * 2) + GRID_RECTANGLE.height + (PADDING + 100))}; // same as width + height of buttons + pad between grid and button
 
     InitWindow(screenWidth, screenHeight, "Game of Life - raylib test");
     SetTargetFPS(60);
+
+    // create buttons
 
     while (!WindowShouldClose()) {
         //
@@ -122,23 +118,20 @@ int main() {
         }
 
         // inputs
-        mousePos = GetMousePosition(); // get mousepos
+        mousePos = GetMousePosition();                               // get mousepos
+        bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT); // get pressed state
 
         // check buttons
-        for (Button &btn : buttonsList) {
-            btn.update(mousePos);
+        // toggle running on space keypress
+        if (IsKeyPressed(KEY_SPACE)) {
+            toggleRunning();
         }
 
         // mouse clicks to toggle squares
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) and CheckCollisionPointRec(mousePos, gridRectangle)) {
+        if (mousePressed and CheckCollisionPointRec(mousePos, GRID_RECTANGLE)) {
             int x = (mousePos.x - PADDING) / CELL_SIZE; // get mousePos in terms of cells
             int y = (mousePos.y - PADDING) / CELL_SIZE;
             swapCell(x, y);
-        }
-
-        // toggle running on space keypress
-        if (IsKeyPressed(KEY_SPACE)) {
-            running = !running;
         }
         //
         // update
@@ -149,12 +142,16 @@ int main() {
         //
         BeginDrawing();
         ClearBackground(WHITE);
+
         // draw grid
         drawGameGrid();
+
         // draw buttons
-        for (Button &btn : buttonsList) {
-            btn.draw();
+        // play/pause button
+        if (GuiButton((Rectangle){UI_START_X, static_cast<float>(UI_START_Y), 40, 40}, running ? "#132#" : "#131#")) {
+            toggleRunning();
         }
+
         EndDrawing();
         //
         // draw
