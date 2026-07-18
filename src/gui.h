@@ -1,6 +1,6 @@
 #pragma once
-#include "consts.h"
+#include "grid.h"
 
-void drawGameGrid(const bool (&grid)[GRID_WIDTH][GRID_HEIGHT]);
+void drawGameGrid(Grid &grid);
 
-void drawButtons(bool running);
+void drawButtons(Grid &grid, bool running);

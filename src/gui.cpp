@@ -5,10 +5,10 @@
 #include "raylib.h"
 
 // draw the grid
-void drawGameGrid(const bool (&grid)[GRID_WIDTH][GRID_HEIGHT]) {
+void drawGameGrid(Grid &grid) {
     for (int y = 0; y < GRID_HEIGHT; y++) {
         for (int x = 0; x < GRID_WIDTH; x++) {
-            if (grid[x][y]) { // draw a green rectangle if cell is alive
+            if (grid.get(x, y)) { // draw a green rectangle if cell is alive
                 DrawRectangle(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GREEN);
             }
             // always draw an outline
@@ -19,7 +19,7 @@ void drawGameGrid(const bool (&grid)[GRID_WIDTH][GRID_HEIGHT]) {
 }
 
 // draw the buttons
-void drawButtons(bool running) {
+void drawButtons(Grid &grid, bool running) {
     float x{UI_START_X};                     // track the x value for the button (iterated after each button)
     float y{static_cast<float>(UI_START_Y)}; // y value
 
@@ -36,7 +36,7 @@ void drawButtons(bool running) {
         if (running) { // disable running
             toggleRunning();
         }
-        cycle(); // do one cycle
+        grid.step(); // do one cycle
     }
     x += BUTTON_SIZE + PADDING;
 
@@ -46,7 +46,7 @@ void drawButtons(bool running) {
         if (running) {
             toggleRunning();
         }
-        clearGrid();
+        grid.clear();
     }
     x += BUTTON_SIZE + PADDING;
 }
