@@ -1,0 +1,8 @@
+.direnv
+.envrc
+flake*
+
+
+build
+*cache*
+.clang-format
