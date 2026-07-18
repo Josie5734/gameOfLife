@@ -1,11 +1,16 @@
 #include "raylib.h"
 #include <functional>
-#include <string>
+#include <vector>
 
-// grid and cell size
-const int GRID_WIDTH{50};
+#include "buttons.h"
+
+// grid, cell size and ui values
+const int GRID_WIDTH{50}; // number of cells
 const int GRID_HEIGHT{50};
-const int CELL_SIZE{15};
+const int CELL_SIZE{15}; // size of cells in pixels
+
+const int PADDING{CELL_SIZE};                                                                   // padding to draw around everything
+const Rectangle gridRectangle{PADDING, PADDING, GRID_WIDTH *CELL_SIZE, GRID_HEIGHT *CELL_SIZE}; // store the size and position of the grid in a rectangle
 
 // non const values
 bool grid[GRID_WIDTH][GRID_HEIGHT]{{false}};   // the cell grid
@@ -16,21 +21,30 @@ float timer{0.0f};                             // timer for updating
 const float UPDATE_INTERVAL{1.0f};             // interval to update at (in seconds)
 bool running{false};                           // is the sim running
 
+std::vector<Button> buttonsList{
+    Button(
+        CELL_SIZE * 1,
+        (PADDING + gridRectangle.height) + PADDING,
+        100,
+        40,
+        []() { return running ? "Stop" : "Start"; }, // flip text based on running
+        []() { running = !running; }),
+};
+
 // draw the grid
-void drawGame() {
+void drawGameGrid() {
     for (int y = 0; y < GRID_HEIGHT; y++) {
         for (int x = 0; x < GRID_WIDTH; x++) {
             if (grid[x][y]) { // draw a green rectangle if cell is alive
-                DrawRectangle(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GREEN);
+                DrawRectangle(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GREEN);
             }
             // always draw an outline
-            DrawRectangleLines(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GRAY);
+            DrawRectangleLines(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GRAY);
         }
     }
 }
 
-// make cell alive/unalive (used only for mouse clicks, not during cycle
-// calculation)
+// make cell alive/unalive (used only for mouse clicks, not during cycle calculation)
 void swapCell(int x, int y) { grid[x][y] = !grid[x][y]; }
 
 // get number of live neighbours of cell at x,y
@@ -77,57 +91,14 @@ void cycle() {
     swapBuffer(); // replace grid with buffer grid
 }
 
-// buttons
-class Button {
-  public:
-    // construct
-    Button(float x, float y, float w, float h, std::string text, std::function<void()> onClick) : x(x), y(y), w(w), h(h), text(text), onClick(onClick) {};
-
-    // values
-    bool isHovered{false}; // if button is being hovered over
-    bool isClicked{false}; // if button is clicked
-    float x{0};            // position and sizing
-    float y{0};
-    float w{0};
-    float h{0};
-    Rectangle bounds{x, y, w, h};  // put position/sizing into a Rectangle to describe the "hitbox" of the button
-    std::string text{"default"};   // the text on the button
-    std::function<void()> onClick; // onClick function for when clicked
-
-    // check if button is hovered
-    void checkHovered(Vector2 mousePosition) {
-        isHovered = CheckCollisionPointRec(mousePosition, bounds);
-    }
-
-    // check if button is clicked
-    void checkClicked() {
-        isClicked = isHovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
-        if (isClicked && onClick) {
-            onClick();
-        }
-    }
-
-    // update button
-    void update(Vector2 mPos) {
-        checkHovered(mPos);
-        checkClicked();
-    }
-
-    // draw button
-    void draw() {
-        Color color = isHovered ? LIGHTGRAY : GRAY;
-        DrawRectangleRec(bounds, color);
-        DrawText(text.c_str(), x + 10, y + 10, 20, BLACK);
-    }
-};
-
 int main() {
-    // create buttons
-    Button start(CELL_SIZE * 1, (GRID_HEIGHT * CELL_SIZE) + (CELL_SIZE * 1), 150, 40, "Start/Stop", []() { running = !running; });
+    // height of buttons that affect window height
+    int buttonHeights{0};
+    buttonHeights += buttonsList[PLAY_PAUSE].h; // add height of play/pause button into window
 
     // screen size
-    const int screenWidth{GRID_WIDTH * CELL_SIZE}; // full grid size + buttons and some padding
-    const int screenHeight{static_cast<int>((GRID_HEIGHT * CELL_SIZE) + (start.h + CELL_SIZE))};
+    const int screenWidth{static_cast<int>((PADDING * 2) + gridRectangle.width)};                               // padding either side + grid width
+    const int screenHeight{static_cast<int>((PADDING * 2) + gridRectangle.height + (PADDING + buttonHeights))}; // same as width + height of buttons + pad between grid and button
 
     InitWindow(screenWidth, screenHeight, "Game of Life - raylib test");
     SetTargetFPS(60);
@@ -154,15 +125,15 @@ int main() {
         mousePos = GetMousePosition(); // get mousepos
 
         // check buttons
-        start.update(mousePos);
+        for (Button &btn : buttonsList) {
+            btn.update(mousePos);
+        }
 
         // mouse clicks to toggle squares
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            int x = mousePos.x / CELL_SIZE; // get mousePos in terms of cells
-            int y = mousePos.y / CELL_SIZE;
-            if (y <= GRID_HEIGHT * CELL_SIZE) { // if within the grid, toggle the cell its over
-                swapCell(x, y);
-            }
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) and CheckCollisionPointRec(mousePos, gridRectangle)) {
+            int x = (mousePos.x - PADDING) / CELL_SIZE; // get mousePos in terms of cells
+            int y = (mousePos.y - PADDING) / CELL_SIZE;
+            swapCell(x, y);
         }
 
         // toggle running on space keypress
@@ -178,8 +149,12 @@ int main() {
         //
         BeginDrawing();
         ClearBackground(WHITE);
-        drawGame();
-        start.draw();
+        // draw grid
+        drawGameGrid();
+        // draw buttons
+        for (Button &btn : buttonsList) {
+            btn.draw();
+        }
         EndDrawing();
         //
         // draw
