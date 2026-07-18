@@ -1,7 +1,5 @@
 .direnv
 .envrc
-flake*
-
 
 build
 *cache*

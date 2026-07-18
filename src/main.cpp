@@ -5,7 +5,7 @@
 // grid and cell size
 const int GRID_WIDTH{50};
 const int GRID_HEIGHT{50};
-const int CELL_SIZE{10};
+const int CELL_SIZE{15};
 
 // non const values
 bool grid[GRID_WIDTH][GRID_HEIGHT]{{false}};   // the cell grid
