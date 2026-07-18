@@ -1,6 +1,6 @@
 [
   {
-    "file": "src/imagebuttons.cpp",
+    "file": "src/gui.cpp",
     "arguments": [
       "g++",
       "-std=c++17",
@@ -9,15 +9,15 @@
       "-I/nix/store/4i14aa1yjxzppkqw29j4l7pqizvqkz6h-raylib-5.5-unstable-2026-01-20/include",
       "-Ilibs",
       "-c",
-      "src/imagebuttons.cpp",
+      "src/gui.cpp",
       "-o",
-      "build/imagebuttons.o"
+      "build/gui.o"
     ],
     "directory": "/home/josie/programming/c/gameOfLife",
-    "output": "build/imagebuttons.o"
+    "output": "build/gui.o"
   },
   {
-    "file": "src/imagebuttons.cpp",
+    "file": "src/gui.cpp",
     "arguments": [
       "g++",
       "-fPIC",
@@ -41,9 +41,9 @@
       "-I/nix/store/4i14aa1yjxzppkqw29j4l7pqizvqkz6h-raylib-5.5-unstable-2026-01-20/include",
       "-Ilibs",
       "-c",
-      "src/imagebuttons.cpp",
+      "src/gui.cpp",
       "-o",
-      "build/imagebuttons.o",
+      "build/gui.o",
       "-U_FORTIFY_SOURCE",
       "-D_FORTIFY_SOURCE=3",
       "-B/nix/store/34dkjp1wxxh6djsvxk8nhvzp0izasds0-glibc-2.42-67/lib/",
@@ -93,7 +93,7 @@
       "/nix/store/qcjd09gz8wazdzz8274ldxri4859njvl-gdb-17.2/include"
     ],
     "directory": "/home/josie/programming/c/gameOfLife",
-    "output": "build/imagebuttons.o"
+    "output": "build/gui.o"
   },
   {
     "file": "src/main.cpp",

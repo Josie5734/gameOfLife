@@ -3,16 +3,9 @@
 #include "raygui.h"
 // #include <functional>
 // #include <vector>
-
-// grid, cell size and ui values
-const int GRID_WIDTH{50}; // number of cells
-const int GRID_HEIGHT{50};
-const int CELL_SIZE{15}; // size of cells in pixels
-
-const int PADDING{CELL_SIZE};                                                                    // padding to draw around everything
-const Rectangle GRID_RECTANGLE{PADDING, PADDING, GRID_WIDTH *CELL_SIZE, GRID_HEIGHT *CELL_SIZE}; // store the size and position of the grid in a rectangle
-const int UI_START_X{PADDING};                                                                   // the start of the ui in x,y
-const int UI_START_Y{static_cast<int>(PADDING * 2 + GRID_RECTANGLE.height)};
+#include "consts.h"
+#include "game.h"
+#include "gui.h"
 
 // non const values
 bool grid[GRID_WIDTH][GRID_HEIGHT]{{false}};   // the cell grid
@@ -22,20 +15,6 @@ float deltaTime{0.0f};                         // delta time for time between ea
 float timer{0.0f};                             // timer for updating
 const float UPDATE_INTERVAL{1.0f};             // interval to update at (in seconds)
 bool running{false};                           // is the sim running
-
-// draw the grid
-void drawGameGrid() {
-    for (int y = 0; y < GRID_HEIGHT; y++) {
-        for (int x = 0; x < GRID_WIDTH; x++) {
-            if (grid[x][y]) { // draw a green rectangle if cell is alive
-                DrawRectangle(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GREEN);
-            }
-            // always draw an outline
-            DrawRectangleLines(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GRAY);
-        }
-    }
-    DrawRectangleLinesEx(GRID_RECTANGLE, 2, BLACK); // draw outline of whole grid so edges stand out
-}
 
 // make cell alive/unalive (used only for mouse clicks, not during cycle calculation)
 void swapCell(int x, int y) { grid[x][y] = !grid[x][y]; }
@@ -63,6 +42,16 @@ void swapBuffer() {
         for (int x = 0; x < GRID_WIDTH; x++) {
             grid[x][y] = buffer[x][y]; // put value of buffer into cell
             buffer[x][y] = false;      // reset buffer value
+        }
+    }
+}
+
+// clear the grid and the buffer
+void clearGrid() {
+    for (int y = 0; y < GRID_HEIGHT; y++) {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            grid[x][y] = false;
+            buffer[x][y] = false;
         }
     }
 }
@@ -97,13 +86,14 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Game of Life - raylib test");
     SetTargetFPS(60);
 
+    GuiEnableTooltip(); // enable button tooltips
+
     // create buttons
 
     while (!WindowShouldClose()) {
         //
         // update
         //
-
         deltaTime = GetFrameTime(); // get time since last frame
         timer += deltaTime;         // add to timer
 
@@ -144,13 +134,12 @@ int main() {
         ClearBackground(WHITE);
 
         // draw grid
-        drawGameGrid();
+        drawGameGrid(grid);
+        // draw grid
 
         // draw buttons
-        // play/pause button
-        if (GuiButton((Rectangle){UI_START_X, static_cast<float>(UI_START_Y), 40, 40}, running ? "#132#" : "#131#")) {
-            toggleRunning();
-        }
+        drawButtons(running);
+        // draw buttons
 
         EndDrawing();
         //
