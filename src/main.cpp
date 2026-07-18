@@ -5,6 +5,7 @@
 // #include <vector>
 #include "consts.h"
 #include "game.h"
+#include "grid.h"
 #include "gui.h"
 
 // non const values
