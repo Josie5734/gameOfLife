@@ -1,25 +1,18 @@
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #include "consts.h"
-#include "game.h"
 #include "grid.h"
 #include "gui.h"
 #include "raygui.h"
+#include "simulation.h"
 
 // create grid object
-Grid grid(GRID_WIDTH, GRID_HEIGHT);
+Grid grid{GRID_WIDTH, GRID_HEIGHT};
+
+Simulation simulation{};
 
 // variables
-Vector2 mousePos{0.0f, 0.0f};      // mouse position, updated on click
-float deltaTime{0.0f};             // delta time for time between each frame
-float timer{0.0f};                 // timer for updating
-const float UPDATE_INTERVAL{1.0f}; // interval to update at (in seconds)
-bool running{false};               // is the sim running
-
-// toggle the running state
-void toggleRunning() {
-    running = !running;
-}
+Vector2 mousePos{0.0f, 0.0f}; // mouse position, updated on click
 
 int main() {
     // screen size
@@ -37,18 +30,11 @@ int main() {
         //
         // update
         //
-        deltaTime = GetFrameTime(); // get time since last frame
-        timer += deltaTime;         // add to timer
-
-        // when timer reaches update interval, reset and if running, do cycle
-        if (timer >= UPDATE_INTERVAL) {
-            if (running) {   // if sim is running
-                grid.step(); // update grid
-            }
-            timer -= UPDATE_INTERVAL; // subtract interval to keep extra time
-                                      // e.g timer = 1.02, so subtract interval(1.0), still keeps the 0.02
-                                      // seconds for next update cycle for consistency
-        }
+        float deltaTime = GetFrameTime();  // get time since last frame
+        simulation.updateTimer(deltaTime); // update simulation timer
+        if (simulation.shouldStep()) {     // step if should step
+            grid.step();
+        };
 
         // inputs
         mousePos = GetMousePosition();                               // get mousepos
@@ -57,7 +43,7 @@ int main() {
         // check buttons
         // toggle running on space keypress
         if (IsKeyPressed(KEY_SPACE)) {
-            toggleRunning();
+            simulation.toggleRunning();
         }
 
         // mouse clicks to toggle squares
@@ -81,7 +67,7 @@ int main() {
         // draw grid
 
         // draw buttons
-        drawButtons(grid, running);
+        drawButtons(grid, simulation);
         // draw buttons
 
         EndDrawing();
