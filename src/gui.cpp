@@ -3,6 +3,13 @@
 #include "raygui.h"
 #include "raylib.h"
 #include "simulation.h"
+#include <format>
+#include <string>
+
+// styling
+void setStyles() {
+    GuiEnableTooltip();
+}
 
 // draw the grid
 void drawGameGrid(Grid &grid) {
@@ -60,6 +67,14 @@ void drawButtons(Grid &grid, Simulation &sim) {
         sim.decreaseUpdateSpeed();
     }
     x += spacing;
+
+    // output simulation speed
+    DrawRectangleRec((Rectangle){x, y, BUTTON_SIZE * 2, BUTTON_SIZE}, GetColor(GuiGetStyle(BUTTON, BASE_COLOR_NORMAL)));
+    DrawRectangleLinesEx((Rectangle){x, y, BUTTON_SIZE * 2, BUTTON_SIZE}, 2, GetColor(GuiGetStyle(BUTTON, BORDER_COLOR_NORMAL)));
+    std::string label = std::format("{:.2f} c/s", sim.getUpdateSpeed());
+    int textWidth = MeasureText(label.c_str(), 20); // measure textwidth
+    DrawText(label.c_str(), x + static_cast<float>((BUTTON_SIZE * 2 - textWidth)) / 2, y + static_cast<float>((BUTTON_SIZE - 20)) / 2, 20, BLACK);
+    x += spacing + BUTTON_SIZE;
 
     // increase simulation speed
     GuiSetTooltip("Increase Simulation Speed");

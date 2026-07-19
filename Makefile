@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -g $(shell pkg-config --cflags raylib) -Ilibs
+CXXFLAGS := -std=c++20 -Wall -g $(shell pkg-config --cflags raylib) -Ilibs
 LDFLAGS := $(shell pkg-config --libs raylib)
 
 SRC_DIR := src

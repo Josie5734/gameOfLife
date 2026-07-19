@@ -14,6 +14,9 @@ class Simulation {
     // update timer
     void updateTimer(float delta);
 
+    // get update speed in  cycles/second
+    float getUpdateSpeed();
+
     // increase update interval speed
     void increaseUpdateSpeed();
 

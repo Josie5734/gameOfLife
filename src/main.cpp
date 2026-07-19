@@ -16,15 +16,14 @@ Vector2 mousePos{0.0f, 0.0f}; // mouse position, updated on click
 
 int main() {
     // screen size
-    const int screenWidth{static_cast<int>((PADDING * 2) + GRID_RECTANGLE.width)};                     // padding either side + grid width
-    const int screenHeight{static_cast<int>((PADDING * 2) + GRID_RECTANGLE.height + (PADDING + 100))}; // same as width + height of buttons + pad between grid and button
+    const int screenWidth{static_cast<int>((PADDING * 2) + GRID_RECTANGLE.width)};                             // padding either side + grid width
+    const int screenHeight{static_cast<int>((PADDING * 2) + GRID_RECTANGLE.height + (BUTTON_SIZE + PADDING))}; // same as width + height of buttons + pad between grid and button
 
     InitWindow(screenWidth, screenHeight, "Game of Life - raylib test");
     SetTargetFPS(60);
 
-    GuiEnableTooltip(); // enable button tooltips
-
-    // create buttons
+    // set the raygui styling
+    setStyles();
 
     while (!WindowShouldClose()) {
         //

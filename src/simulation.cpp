@@ -21,6 +21,10 @@ void Simulation::updateTimer(float delta) {
     }
 }
 
+float Simulation::getUpdateSpeed() {
+    return 1.0f / updateInterval;
+}
+
 void Simulation::increaseUpdateSpeed() {
     // clamp to minimum speed
     updateInterval = std::max(updateInterval - stepAmount, minInterval);
