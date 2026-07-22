@@ -38,14 +38,7 @@
                   [
                     clang-tools
                     cmake
-                    codespell
-                    cppcheck
                     bear
-                    doxygen
-                    gtest
-                    lcov
-                    vcpkg
-                    vcpkg-tool
                     self.formatter.${system}
 
                     raylib
