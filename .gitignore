@@ -5,3 +5,4 @@ build
 *cache*
 .clang-format
 game_of_life
+compile_commands.json

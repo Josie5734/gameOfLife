@@ -5,7 +5,6 @@
 #include "gui.h"
 #include "raygui.h"
 #include "simulation.h"
-#include <iostream>
 
 // create grid object
 Grid grid{GRID_WIDTH, GRID_HEIGHT};
