@@ -5,6 +5,7 @@
 #include "gui.h"
 #include "raygui.h"
 #include "simulation.h"
+#include <iostream>
 
 // create grid object
 Grid grid{GRID_WIDTH, GRID_HEIGHT};
@@ -36,8 +37,10 @@ int main() {
         };
 
         // inputs
-        mousePos = GetMousePosition();                               // get mousepos
-        bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT); // get pressed state
+        mousePos = GetMousePosition(); // get mousepos
+        // which mouse buttons are held down
+        bool mouseLeft = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+        bool mouseRight = IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
 
         // check buttons
         // toggle running on space keypress
@@ -45,11 +48,15 @@ int main() {
             simulation.toggleRunning();
         }
 
-        // mouse clicks to toggle squares
-        if (mousePressed and CheckCollisionPointRec(mousePos, GRID_RECTANGLE)) {
+        // if mouse is in the grid and (mouseLeft XOR mouseRight) are down (not both)
+        if ((mouseLeft ^ mouseRight) && CheckCollisionPointRec(mousePos, GRID_RECTANGLE)) {
             int x = (mousePos.x - PADDING) / CELL_SIZE; // get mousePos in terms of cells
             int y = (mousePos.y - PADDING) / CELL_SIZE;
-            grid.toggle(x, y);
+            if (mouseLeft) {           // if left click
+                grid.set(x, y, true);  // make cells alive
+            } else if (mouseRight) {   // if right click
+                grid.set(x, y, false); // make cells dead
+            }
         }
         //
         // update

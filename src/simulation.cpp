@@ -22,7 +22,7 @@ void Simulation::updateTimer(float delta) {
 }
 
 float Simulation::getUpdateSpeed() {
-    return 1.0f / updateInterval;
+    return updateInterval;
 }
 
 void Simulation::increaseUpdateSpeed() {
